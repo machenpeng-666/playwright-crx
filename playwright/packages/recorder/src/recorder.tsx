@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-
+//@ts-nocheck
 import type { CallLog, Mode, Source } from './recorderTypes';
 import { CodeMirrorWrapper } from '@web/components/codeMirrorWrapper';
 import { SplitView } from '@web/components/splitView';
@@ -161,7 +161,12 @@ export const Recorder: React.FC<RecorderProps> = ({
       <select className='recorder-chooser' hidden={!sources.length} value={fileId} onChange={event => {
         setFileId(event.target.selectedOptions[0].value);
         window.dispatch({ event: 'fileChanged', params: { file: event.target.selectedOptions[0].value } });
-      }}>{renderSourceOptions(sources)}</select>
+      }}>
+        {renderSourceOptions(sources)}
+        <optgroup label={'JSONL'} key={'JSONL'}>
+        <option key={'jsonl'} value={'jsonl'}>JSONL</option>
+        </optgroup>
+      </select>
       <ToolbarButton icon='clear-all' title='Clear' disabled={!source || !source.text} onClick={() => {
         window.dispatch({ event: 'clear' });
       }}></ToolbarButton>
@@ -170,7 +175,7 @@ export const Recorder: React.FC<RecorderProps> = ({
     <SplitView sidebarSize={200}>
       {/* <CodeMirrorWrapper text={source.text} language={source.language} highlight={source.highlight} revealLine={source.revealLine} readOnly={true} lineNumbers={true} /> */}
       {/* edit */}
-      <SplitView sidebarSize={200} orientation="horizontal">
+      <SplitView sidebarSize={400} orientation="horizontal">
         <CodeMirrorWrapper text={source.text} language={source.language} highlight={source.highlight} revealLine={source.revealLine} readOnly={true} lineNumbers={true} />
         <TabbedPane
           tabs={[
@@ -178,11 +183,18 @@ export const Recorder: React.FC<RecorderProps> = ({
               id: 'JSONData',
               title: '步骤数据',
               //@ts-ignore
-              render: () => <div style={{ height: '100%', overflowY: 'auto' }}>{JSON.stringify(source.JSONData)}</div>
+              render: () => <div style={{ height: '100%', overflowY: 'auto' }}>
+                {
+                  source?.JSONData?.map((item, i) => {
+                    return (<div key={i}>
+                      {JSON.stringify(item)}
+                    </div>)
+                  })
+                }
+              </div>
             },
           ]}
-          selectedTab={selectedTab}
-          setSelectedTab={setSelectedTab}
+          selectedTab={'JSONData'}
         />
       </SplitView>
 
